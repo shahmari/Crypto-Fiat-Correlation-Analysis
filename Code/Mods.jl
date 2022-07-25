@@ -53,7 +53,7 @@ end
 
 function GetData(Sym::String;
     Market::String="USD", StartDate::DateTime=DateTime(2018, 01, 01), EndDate::DateTime=DateTime(2022, 06, 01),
-    api_key::String="9AE8E65E-79A6-415F-A1E0-4D167655CAEB", Period::String="1DAY", SaveDir::String=DataDir * "Stage-4-Data/")
+    api_key::String="", Period::String="1DAY", SaveDir::String=DataDir * "Stage-4-Data/")
     api_address = "https://rest.coinapi.io/v1/exchangerate/"
     api_params = "/$Market/history?period_id=$Period&limit=2000&output_format=csv"
     api_time = "&time_start=$(StartDate)&time_end=$(EndDate)"
