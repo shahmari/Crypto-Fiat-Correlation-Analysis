@@ -53,7 +53,7 @@ end
 
 function GetData(Sym::String;
     Market::String="USD", StartDate::DateTime=DateTime(2018, 01, 01), EndDate::DateTime=DateTime(2022, 06, 01),
-    api_key::String="", Period::String="1DAY", SaveDir::String=DataDir * "Stage-4-Data/")
+    api_key::String="API_KEY", Period::String="1DAY", SaveDir::String=DataDir * "Stage-4-Data/")
     api_address = "https://rest.coinapi.io/v1/exchangerate/"
     api_params = "/$Market/history?period_id=$Period&limit=2000&output_format=csv"
     api_time = "&time_start=$(StartDate)&time_end=$(EndDate)"
@@ -105,8 +105,8 @@ end
         series_annotations := text.(vec(round.(x.args[3], digits=3)), annotationargs...)
         primary := false
         xrotation := 30
-        xticks := (1:rows, x.args[1])
-        yticks := (1:cols, x.args[2])
+        xticks := (0.5:rows, x.args[1])
+        yticks := (0.5:cols, x.args[2])
         repeat(x.args[1], inner=rows), repeat(x.args[2], outer=cols)
     end
 end
