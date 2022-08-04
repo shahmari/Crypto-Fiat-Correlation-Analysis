@@ -57,14 +57,14 @@ function GetData(Sym::String;
     api_address = "https://rest.coinapi.io/v1/exchangerate/"
     api_params = "/$Market/history?period_id=$Period&limit=2000&output_format=csv"
     api_time = "&time_start=$(StartDate)&time_end=$(EndDate)"
-    write(SaveDir * "$Sym.csv", HTTP.get(
+    write(SaveDir * "$Period-$Sym.csv", HTTP.get(
         api_address * Sym * api_params * api_time,
         ["X-CoinAPI-Key" => api_key]).body)
 end
 
-function LoadData(Sym::String; LoadDir::String=DataDir * "Stage-4-Data/")
+function LoadData(Sym::String; Period::String = "1DAY", LoadDir::String=DataDir * "Stage-4-Data/")
     Normalize(Ans::Vector) = (Ans .- mean(Ans)) / std(Ans)
-    df = CSV.read(LoadDir * "$Sym.csv", DataFrame)
+    df = CSV.read(LoadDir * "$Period-$Sym.csv", DataFrame)
     Returns = log.(df.rate_close) .- log.(df.rate_open)
     Prices = (df.rate_high .+ df.rate_low) / 2
     NormPrices = Normalize(Prices)
