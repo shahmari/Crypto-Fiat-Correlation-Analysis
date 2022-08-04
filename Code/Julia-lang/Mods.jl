@@ -1,6 +1,6 @@
 module StatsMods
 
-export GetData, SaveData, LoadData, GetReturn, CalculateDistance, MatrixMap
+export GetData, SaveData, LoadData, GetReturn, CalculateDistance, MatrixMap, GetLDMean, GetLDSTD
 
 using Plots, DataFrames, CSV, MarketData, HTTP, Statistics
 
@@ -51,6 +51,21 @@ function GetLDSTD(Mat)
     return std(Vec)
 end
 
+function GetLDMean(Mat)
+    cols, rows = size(Mat)
+    Vec = Float64[]
+
+    for i ∈ 1:cols
+        for j ∈ 1:rows
+            if i + j <= (rows + cols) / 2
+                push!(Vec, rotr90(Mat)[i, j])
+            end
+        end
+    end
+
+    return std(Vec)
+end
+
 function GetData(Sym::String;
     Market::String="USD", StartDate::DateTime=DateTime(2018, 01, 01), EndDate::DateTime=DateTime(2022, 06, 01),
     api_key::String="API_KEY", Period::String="1DAY", SaveDir::String=DataDir * "Stage-4-Data/")
@@ -62,7 +77,7 @@ function GetData(Sym::String;
         ["X-CoinAPI-Key" => api_key]).body)
 end
 
-function LoadData(Sym::String; Period::String = "1DAY", LoadDir::String=DataDir * "Stage-4-Data/")
+function LoadData(Sym::String; Period::String="1DAY", LoadDir::String=DataDir * "Stage-4-Data/")
     Normalize(Ans::Vector) = (Ans .- mean(Ans)) / std(Ans)
     df = CSV.read(LoadDir * "$Period-$Sym.csv", DataFrame)
     Returns = log.(df.rate_close) .- log.(df.rate_open)
