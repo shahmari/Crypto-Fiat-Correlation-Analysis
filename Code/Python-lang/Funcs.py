@@ -10,13 +10,13 @@ import networkx as nx
 from igraph import *
 import seaborn as sns
 
-def RepairData(Dir, symboles):
-    for sym in symboles:
-        df = pd.read_csv(Dir + "Stage-4-Data/%s.csv" % sym)
+def RepairData(Dir, Data, symboles):
+    for i in range(len(Data)):
+        df = pd.read_csv(Dir + "Stage-4-Data/%s.csv" % Data[i])
         data = df["time_period_start;time_period_end;time_open;time_close;rate_open;rate_high;rate_low;rate_close"].str.split(";", expand=True)
         data.rename(columns={0: 'time_period_start', 1: 'time_period_end', 2: 'time_open', 3: 'time_close',
             4: 'rate_open', 5: 'rate_high', 6: 'rate_low', 7: 'rate_close'}, inplace=True)
-        data.to_csv(Dir + 'Stage-7-Data/%s.csv' % sym , index=False)
+        data.to_csv(Dir + 'Stage-7-Data/%s.csv' % symboles[i] , index=False)
 
 def LoadData(Dir, symboles):
     Data_t = pd.read_csv(Dir + "Stage-7-Data/%s.csv" % symboles[1])
@@ -41,10 +41,10 @@ def Optimum_lag(Dataframe, symboles, maxlag_, first_col, end_col):
     return x.summary()
 
 
-maxlag = 4
+
 test = 'ssr_chi2test'
 test = 'ssr_ftest'
-def grangers_causation_matrix(data, variables, verbose=False):    
+def grangers_causation_matrix(data, maxlag_, variables, verbose=False):    
     """Check Granger Causality of all possible combinations of the Time series.
     The rows are the response variable, columns are predictors. The values in the table 
     are the P-Values. P-Values lesser than the significance level (0.05), implies 
@@ -58,9 +58,9 @@ def grangers_causation_matrix(data, variables, verbose=False):
     df_f = pd.DataFrame(np.zeros((len(variables), len(variables))), columns=variables, index=variables)
     for c in df_p.columns:
         for r in df_p.index:
-            test_result = grangercausalitytests(data[[r, c]], maxlag=maxlag, verbose=False)
-            p_values = [round(test_result[i+1][0]['ssr_chi2test'][1],4) for i in range(maxlag)]
-            F_score = round(test_result[maxlag][0]['ssr_ftest'][0],4)            
+            test_result = grangercausalitytests(data[[r, c]], maxlag=maxlag_, verbose=False)
+            p_values = [round(test_result[i+1][0]['ssr_chi2test'][1],4) for i in range(maxlag_)]
+            F_score = round(test_result[maxlag_][0]['ssr_ftest'][0],4)            
             if verbose: print(f'Y = {r}, X = {c}, P Values = {p_values}')
             min_p_value = np.min(p_values)
             df_p.loc[r, c] = min_p_value
