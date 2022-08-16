@@ -90,18 +90,18 @@ def MST_Graph(Mat, symboles):
     G_ = nx.from_numpy_array(Mat)
 
     G=nx.minimum_spanning_tree(G_)
-    edge_labels = nx.get_edge_attributes(G, "weight")
-    elarge = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] > 0.5]
-    esmall = [(u, v) for (u, v, d) in G.edges(data=True) if d["weight"] <= 0.5]
-
-    pos = nx.spring_layout(G, seed=7)
-    nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
 
     labels={}
     for i in range(len(G.nodes())):
         labels[list(G.nodes)[i]] = symboles[i]
+    H = nx.relabel_nodes(G, labels)
+    pos = nx.spring_layout(H, seed=7)
+    nx.draw_networkx_labels(H, pos, font_size=10, font_family="sans-serif")
+    edge_labels = nx.get_edge_attributes(H, "weight")
+    elarge = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] > 0.5]
+    esmall = [(u, v) for (u, v, d) in H.edges(data=True) if d["weight"] <= 0.5]
 
-    nx.draw_networkx_nodes(G, pos, labels, node_size=50)
-    nx.draw_networkx_edges(G, pos, edgelist=elarge, width=1)
+    nx.draw_networkx_nodes(H, pos, node_size=50)
+    nx.draw_networkx_edges(H, pos, edgelist=elarge, width=1)
     nx.draw_networkx_edges(
-        G, pos, edgelist=esmall, width=2, alpha=0.5, edge_color="b", style="dashed")
+        H, pos, edgelist=esmall, width=2, alpha=0.5, edge_color="b", style="dashed")
