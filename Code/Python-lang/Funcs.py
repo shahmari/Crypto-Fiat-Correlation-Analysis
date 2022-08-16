@@ -44,7 +44,7 @@ def Optimum_lag(Dataframe, symboles, maxlag_, first_col, end_col):
 maxlag = 4
 test = 'ssr_chi2test'
 test = 'ssr_ftest'
-def grangers_causation_matrix(data, variables, test='ssr_chi2test', verbose=False):    
+def grangers_causation_matrix(data, variables, verbose=False):    
     """Check Granger Causality of all possible combinations of the Time series.
     The rows are the response variable, columns are predictors. The values in the table 
     are the P-Values. P-Values lesser than the significance level (0.05), implies 
@@ -59,7 +59,7 @@ def grangers_causation_matrix(data, variables, test='ssr_chi2test', verbose=Fals
     for c in df_p.columns:
         for r in df_p.index:
             test_result = grangercausalitytests(data[[r, c]], maxlag=maxlag, verbose=False)
-            p_values = [round(test_result[i+1][0]['ssr_chi2test'][0],4) for i in range(maxlag)]
+            p_values = [round(test_result[i+1][0]['ssr_chi2test'][1],4) for i in range(maxlag)]
             F_score = round(test_result[maxlag][0]['ssr_ftest'][0],4)            
             if verbose: print(f'Y = {r}, X = {c}, P Values = {p_values}')
             min_p_value = np.min(p_values)
@@ -97,11 +97,11 @@ def MST_Graph(Mat, symboles):
     pos = nx.spring_layout(G, seed=7)
     nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
 
-    # labels={}
-    # for i in range(len(G.nodes())):
-    #     labels[list(G.nodes)[i]] = symboles[i]
+    labels={}
+    for i in range(len(G.nodes())):
+        labels[list(G.nodes)[i]] = symboles[i]
 
-    nx.draw_networkx_nodes(G, pos, node_size=50)
+    nx.draw_networkx_nodes(G, pos, labels, node_size=50)
     nx.draw_networkx_edges(G, pos, edgelist=elarge, width=1)
     nx.draw_networkx_edges(
         G, pos, edgelist=esmall, width=2, alpha=0.5, edge_color="b", style="dashed")
