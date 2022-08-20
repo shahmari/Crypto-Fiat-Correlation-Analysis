@@ -8,14 +8,26 @@ DataDir = "../../Data/"
 FigsDir = "../../Figs/"
 
 function GetData(Sym::String, Market::String;
-    StartDate::DateTime=DateTime(2020, 01, 01), EndDate::DateTime=DateTime(2022, 06, 01),
-    api_key::String=ENV["CoinAPI_Key1"], Period::String="1DAY", SaveDir::String=DataDir, Limit=2000, OutputFormat::String="csv")
+    StartDate::DateTime=DateTime(2021, 06, 01), EndDate::DateTime=DateTime(2022, 08, 01),
+    api_key::String=ENV["CoinAPI_Key1"], Period::String="1DAY", SaveDir::String=DataDir, Limit=500, OutputFormat::String="csv")
     api_address = "https://rest.coinapi.io/v1/exchangerate/"
     api_params = "/$Market/history?period_id=$Period&limit=$Limit&output_format=$OutputFormat"
     api_time = "&time_start=$(StartDate)&time_end=$(EndDate)"
-    write(SaveDir * "$Sym-$Market.csv", HTTP.get(
-        api_address * Sym * api_params * api_time,
-        ["X-CoinAPI-Key" => api_key]).body)
+    REQUEST = try
+        HTTP.get(
+            api_address * Sym * api_params * api_time,
+            ["X-CoinAPI-Key" => api_key])
+    catch e
+        e
+    end
+    if REQUEST.status == 200
+        write(SaveDir * "$Sym-$Market.csv", REQUEST.body)
+        return true
+    elseif REQUEST.status == 429
+        error("Rate limit exceeded")
+    else
+        return false
+    end
 end
 
 function LoadData(Dir::String)
@@ -24,11 +36,27 @@ function LoadData(Dir::String)
     Returns = log.(df.rate_close) .- log.(df.rate_open)
     Prices = (df.rate_high .+ df.rate_low) / 2
     NormPrices = Normalize(Prices)
-    if eltype(df.time_period_start) == Date || eltype(df.time_period_end) == DateTime
+    TurnToDateTime(str::AbstractString) = DateTime(str[1:end-9])
+    if eltype(df.time_period_start) == Date || eltype(df.time_period_start) == DateTime
         Times = df.time_period_start
     else
-        Times = [DateTime(t[1:end-9]) for t in df.time_period_start]
+        Times = try
+            TurnToDateTime.(df.time_period_start)
+        catch
+            DateTime.(df.time_period_start, dateformat"dd/mm/yyyy")
+        end
     end
+    CumRet = cumprod(Returns .+ 1)
+    return [Returns, CumRet, NormPrices, Times]
+end
+
+function LoadYahooData(Dir::String)
+    Normalize(Ans::Vector) = (Ans .- mean(Ans)) / std(Ans)
+    df = CSV.read(Dir, DataFrame)
+    Returns = log.(df.Close) .- log.(df.Open)
+    Prices = (df.High .+ df.Low) / 2
+    NormPrices = Normalize(Prices)
+    Times = df.Date
     CumRet = cumprod(Returns .+ 1)
     return [Returns, CumRet, NormPrices, Times]
 end
@@ -41,7 +69,11 @@ function LoadDataFrame(Dir::String)
     if eltype(df.time_period_start) == Date || eltype(df.time_period_end) == DateTime
         NewDF.Time = df.time_period_start
     else
-        NewDF.Time = TurnToDateTime.(df.time_period_start)
+        NewDF.Time = try
+            TurnToDateTime.(df.time_period_start)
+        catch
+            DateTime.(df.time_period_start, dateformat"dd/mm/yyyy")
+        end
     end
     
     NewDF.Open = df.rate_open
