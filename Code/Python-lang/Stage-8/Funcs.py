@@ -6,6 +6,7 @@ from statsmodels.tsa.stattools import grangercausalitytests
 from statsmodels.tsa.api import VAR
 from statsmodels.tools.eval_measures import rmse, aic
 import networkx as nx
+from sklearn import preprocessing
 import os
 import math 
 import seaborn as sns
@@ -75,10 +76,12 @@ def grangers_causation_matrix(data, maxlag_, variables, verbose=False):
     return df_p, df_f
 
 
+
 def ScaleData(Dataframe):
-    Mat = 1 - np.array(Dataframe)
     #Mat = np.array(Dataframe)
-    Mat = (Mat - Mat.min()) / (Mat.max() - Mat.min())
+    scaler = preprocessing.MinMaxScaler(feature_range=(0,2))
+    Mat = scaler.fit_transform(Dataframe)
+    #Mat = 2 * (Mat - Mat.min()) / (Mat.max() - Mat.min()) -1
     # for i in range(len(Mat)):
     #     for j in range(len(Mat)):
     #         Mat[i,j] = round(Mat[i,j] , 1)
@@ -93,11 +96,10 @@ def nudge(pos, x_shift, y_shift):
     return {n:(x + x_shift, y + y_shift) for n,(x,y) in pos.items()}
 
 def MST_Graph(Mat, cryptos):
-    sns.set(rc = {"figure.figsize":(4,2)})
 
     G_ = nx.from_numpy_array(Mat)
 
-    G=nx.minimum_spanning_tree(G_)
+    G=nx.minimum_spanning_tree(G_, algorithm='prim')
 
     labels={}
     for i in range(len(G.nodes())):
