@@ -174,6 +174,22 @@ function GetCoinGeckoData(CoinID::String, Market::String; Interval::String="dail
     end
 end
 
+function GetCoinGeckoRangedData(CoinID::String, Market::String, StartDate::Integer, EndDate::Integer)
+    api_address = "https://api.coingecko.com/api/v3/coins/"
+    api_params = "/market_chart/range?vs_currency=$Market&from=$StartDate&to=$EndDate"
+    REQUEST = try
+        HTTP.get(
+            api_address * CoinID * api_params)
+    catch e
+        e
+    end
+    if REQUEST.status == 200
+        return JSON.parse(String(REQUEST.body))
+    else
+        return REQUEST.status
+    end
+end
+
 function GetCoinGeckoHistoryData(CoinID::String, HistoryDate::Date)
     y, m, d = year(HistoryDate), month(HistoryDate), day(HistoryDate)
     api_address = "https://api.coingecko.com/api/v3/coins/"
@@ -242,7 +258,7 @@ end
 end
 
 module ExtraStats
-export GetReturn, GetCumReturn, CalculateDistance, GetLDSTD, GetLDMean
+export GetReturn, GetCumReturn, CalculateDistance, GetLDSTD, GetLDMean, CalculateMovingVolatility
 
 using DataFrames, StatsBase
 
@@ -278,6 +294,34 @@ function GetLDMean(Mat)
     end
 
     return mean(Vec)
+end
+
+function CalculateMovingVolatility(Data::DataFrame, SpanLen::Integer)
+    Dates = Data.Date
+    Prices = Data.Price
+    MovingVolatility = Float64[]
+    for i ∈ 1:length(Dates)-SpanLen
+        push!(MovingVolatility, std(Prices[i:i+SpanLen]))
+    end
+    return Dict("Date" => Dates[1:end-SpanLen], "MovingVolatility" => MovingVolatility)
+end
+
+function CalculateMovingVolatility(Data::Dict, SpanLen::Integer)
+    Dates = Data["Date"]
+    Prices = Data["Price"]
+    MovingVolatility = Float64[]
+    for i ∈ 1:length(Dates)-SpanLen
+        push!(MovingVolatility, std(Prices[i:i+SpanLen]))
+    end
+    return Dict("Date" => Dates[1:end-SpanLen], "MovingVolatility" => MovingVolatility)
+end
+
+function CalculateMovingVolatility(Prices::Vector, Dates::Vector, SpanLen::Integer)
+    MovingVolatility = Float64[]
+    for i ∈ 1:length(Dates)-SpanLen
+        push!(MovingVolatility, std(Prices[i:i+SpanLen]))
+    end
+    return Dict("Date" => Dates[1:end-SpanLen], "MovingVolatility" => MovingVolatility)
 end
 
 end
