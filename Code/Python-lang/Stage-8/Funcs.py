@@ -20,7 +20,7 @@ def PrepDataNames(Dir):
         sym_ = sym.split('-')
         markets.append(sym_[1])
         cryptos.append(sym_[0])
-    return list(set(symboles)), list(set(markets)), list(set(cryptos))
+    return sorted(list(set(symboles))), sorted(list(set(markets))), sorted(list(set(cryptos)))
 
 def LoadData(Dir, symboles, markets, cryptos):
     TimeStamp = pd.read_csv(Dir + '/%s.csv' %symboles[0])
@@ -79,7 +79,7 @@ def grangers_causation_matrix(data, maxlag_, variables, verbose=False):
 
 def ScaleData(Dataframe):
     #Mat = np.array(Dataframe)
-    scaler = preprocessing.MinMaxScaler(feature_range=(0,2))
+    scaler = preprocessing.MinMaxScaler(feature_range=(-1,1))
     Mat = scaler.fit_transform(Dataframe)
     #Mat = 2 * (Mat - Mat.min()) / (Mat.max() - Mat.min()) -1
     # for i in range(len(Mat)):
