@@ -1,0 +1,17 @@
+\babel@toc {english}{}\relax 
+\contentsline {section}{Introduction}{1}{Doc-Start}%
+\contentsline {section}{\numberline {1}Materials and Methods}{1}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Data preparation and structure}{1}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Mathematical Methods}{1}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1}Correlation}{1}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {1.2.2}Granger Test}{1}{subsubsection.1.2.2}%
+\contentsline {subsubsection}{\numberline {1.2.3}Eddy-Fuller Test}{1}{subsubsection.1.2.3}%
+\contentsline {subsubsection}{\numberline {1.2.4}Minimal Spanning Tree}{1}{subsubsection.1.2.4}%
+\contentsline {subsubsection}{\numberline {1.2.5}Volatility study}{1}{subsubsection.1.2.5}%
+\contentsline {subsubsection}{\numberline {1.2.6}Macroscopic time dependence}{1}{subsubsection.1.2.6}%
+\contentsline {paragraph}{Correlation with fiat currencies}{1}{paragraph*.1}%
+\contentsline {section}{\numberline {2}Results and discussion}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Minimal Spanning Tree}{2}{subsection.2.1}%
+\contentsline {section}{Acknowledgments}{2}{section*.5}%
+\contentsline {section}{References}{2}{section*.6}%
+\contentsfinish 
